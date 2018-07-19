@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "C:\\Users\\Emre\\Desktop\\Dosyalar\\Projects\\Last_Assassin\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-ldpi\\ic_launcher.png",
+        "source": "C:\\Users\\Emre\\Desktop\\Dosyalar\\Projects\\Last_Assassin\\app\\src\\main\\res\\mipmap-ldpi\\ic_launcher.png"
+    },
+    {
+        "merged": "C:\\Users\\Emre\\Desktop\\Dosyalar\\Projects\\Last_Assassin\\Last_Assassin\\build\\intermediates\\res\\merged\\debug\\mipmap-ldpi\\ic_launcher.png",
+        "source": "C:\\Users\\Emre\\Desktop\\Dosyalar\\Projects\\Last_Assassin\\Last_Assassin\\src\\main\\res\\mipmap-ldpi\\ic_launcher.png"
+    },
+    {
+        "merged": "C:\\Users\\Emre\\Desktop\\Dosyalar\\Projects\\Son_Yeniceri\\Son_Yeniceri\\Last_Assassin\\build\\intermediates\\res\\merged\\debug\\mipmap-ldpi\\ic_launcher.png",
+        "source": "C:\\Users\\Emre\\Desktop\\Dosyalar\\Projects\\Son_Yeniceri\\Son_Yeniceri\\Last_Assassin\\src\\main\\res\\mipmap-ldpi\\ic_launcher.png"
+    }
+]
