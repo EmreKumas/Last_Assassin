@@ -21,13 +21,16 @@
 
     <application
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" >
         <activity
             android:name="com.mycompany.myngdroidapp.GameActivity"
             android:configChanges="orientation"
+            android:largeHeap="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat" >
             <intent-filter>

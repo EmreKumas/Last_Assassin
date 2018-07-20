@@ -4,13 +4,13 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 
 import com.ngdroidapp.GameObjects.Background;
+import com.ngdroidapp.GameObjects.Direction;
 import com.ngdroidapp.GameObjects.Foreground;
 import com.ngdroidapp.GameObjects.Ground;
 import com.ngdroidapp.GameObjects.HUD;
 import com.ngdroidapp.GameObjects.Player;
 
 import istanbul.gamelab.ngdroid.base.BaseCanvas;
-import istanbul.gamelab.ngdroid.util.Log;
 
 public class GameCanvas extends BaseCanvas{
 
@@ -28,15 +28,13 @@ public class GameCanvas extends BaseCanvas{
     }
 
     public void setup(){
-        Log.i(TAG, "setup");
-
         touchControl = new TouchControl();
 
-        background = new Background("Level_1_Background.png", root, touchControl);
+        background = new Background("Level_1_Background.jpg", root, touchControl);
         foreground = new Foreground("Level_1_Foreground.png", root, background);
         hud = new HUD(root);
         ground = new Ground(background, hud, touchControl, getWidth(), getHeight());
-        player = new Player("ninja.png", root, background, ground);
+        player = new Player(root, background, ground);
 
         //Setting the player's coordinates.
         player.setCoordinates((getWidth() / 4) - player.getDestinationWidth(), (int) (getHeight() / 1.7) - player.getDestinationHeight());
@@ -52,7 +50,6 @@ public class GameCanvas extends BaseCanvas{
 
     public void draw(Canvas canvas){
 
-        //Log.i(TAG, "draw");
         background.draw(canvas);
         ground.draw(canvas);
         player.draw(canvas);
@@ -101,6 +98,12 @@ public class GameCanvas extends BaseCanvas{
                     player.setMoving(false);
                     hud.scaleEverythingToSmallDPad(1.2);
                     touchControl.updateTouch(id, -100, -100);
+
+                    if(player.getLastDirection() == Direction.LEFT){
+                        player.setAnimationType(7);
+                    }else if(player.getLastDirection() == Direction.RIGHT){
+                        player.setAnimationType(0);
+                    }
                 }
 
             //Continue movement if user is hovering over on DPad and getDpadPressed is true and player is not moving.
@@ -128,6 +131,12 @@ public class GameCanvas extends BaseCanvas{
 
             //Removes the touch.
             touchControl.removeTouch(id);
+
+            if(player.getLastDirection() == Direction.LEFT){
+                player.setAnimationType(7);
+            }else if(player.getLastDirection() == Direction.RIGHT){
+                player.setAnimationType(0);
+            }
         }
     }
 

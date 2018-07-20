@@ -51,18 +51,17 @@ public class Ground{
 
         ground.reset();
 
-        ground.moveTo(0, (int) (670 * heightRatio));
-        ground.lineTo((int) (410 * widthRatio), (int) (640 * heightRatio));
-        ground.lineTo((int) (1050 * widthRatio), (int) (550 * heightRatio));
-        ground.lineTo((int) (1390 * widthRatio), (int) (490 * heightRatio));
-        ground.lineTo((int) (1670 * widthRatio), (int) (410 * heightRatio));
-        ground.lineTo((int) (1840 * widthRatio), (int) (410 * heightRatio));
-        ground.lineTo((int) (2290 * widthRatio), (int) (540 * heightRatio));
-        ground.lineTo((int) (2500 * widthRatio), (int) (710 * heightRatio));
-        ground.lineTo((int) (2730 * widthRatio), (int) (712 * heightRatio));
-        ground.lineTo((int) (2900 * widthRatio), (int) (660 * heightRatio));
-        ground.lineTo((int) (3070 * widthRatio), (int) (630 * heightRatio));
-        ground.lineTo((int) (3240 * widthRatio), (int) (615 * heightRatio));
+        ground.moveTo(0, (int) (700 * heightRatio));
+        ground.lineTo((int) (410 * widthRatio), (int) (660 * heightRatio));
+        ground.lineTo((int) (1050 * widthRatio), (int) (570 * heightRatio));
+        ground.lineTo((int) (1390 * widthRatio), (int) (520 * heightRatio));
+        ground.lineTo((int) (1670 * widthRatio), (int) (430 * heightRatio));
+        ground.lineTo((int) (1840 * widthRatio), (int) (430 * heightRatio));
+        ground.lineTo((int) (2290 * widthRatio), (int) (520 * heightRatio));
+        ground.lineTo((int) (2500 * widthRatio), (int) (705 * heightRatio));
+        ground.lineTo((int) (2900 * widthRatio), (int) (705 * heightRatio));
+        ground.lineTo((int) (3070 * widthRatio), (int) (640 * heightRatio));
+        ground.lineTo((int) (3240 * widthRatio), (int) (620 * heightRatio));
         //Below
         ground.lineTo((int) (3240 * widthRatio), screenHeight);
         ground.lineTo(0, screenHeight);
