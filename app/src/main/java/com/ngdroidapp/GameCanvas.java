@@ -1,9 +1,11 @@
 package com.ngdroidapp;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Point;
 
 import com.ngdroidapp.GameObjects.Background;
+import com.ngdroidapp.GameObjects.Bridge;
 import com.ngdroidapp.GameObjects.Direction;
 import com.ngdroidapp.GameObjects.Foreground;
 import com.ngdroidapp.GameObjects.Ground;
@@ -17,6 +19,7 @@ public class GameCanvas extends BaseCanvas{
     private Background background;
     private Foreground foreground;
     private Ground ground;
+    private Bridge bridge;
     private Player player;
     private HUD hud;
 
@@ -33,18 +36,21 @@ public class GameCanvas extends BaseCanvas{
         background = new Background("Level_1_Background.jpg", root, touchControl);
         foreground = new Foreground("Level_1_Foreground.png", root, background);
         hud = new HUD(root);
-        ground = new Ground(background, hud, touchControl, getWidth(), getHeight());
-        player = new Player(root, background, ground);
+        ground = new Ground(background, getWidth(), getHeight());
+        bridge = new Bridge(background, getWidth(), getHeight());
+        player = new Player(root, background, ground, bridge);
 
         //Setting the player's coordinates.
         player.setCoordinates((getWidth() / 4) - player.getDestinationWidth(), (int) (getHeight() / 1.7) - player.getDestinationHeight());
+        ground.setPaint(Color.TRANSPARENT);
+        bridge.setPaint(Color.TRANSPARENT);
     }
 
     public void update(){
 
         background.update(player, hud, touchControl.isDpadPressing());
         player.update();
-        foreground.update(player.getSpeed(), player.isMoving());
+        foreground.update(player.getSpeed(), background.isBackgroundNeedsToMove());
 
     }
 
@@ -52,6 +58,7 @@ public class GameCanvas extends BaseCanvas{
 
         background.draw(canvas);
         ground.draw(canvas);
+        bridge.draw(canvas);
         player.draw(canvas);
         foreground.draw(canvas);
         hud.draw(canvas);
@@ -96,6 +103,7 @@ public class GameCanvas extends BaseCanvas{
                 if(!hud.checkCollisionDPad(hud.pressedButtonDPad(touchControl.getTouch(id).x, touchControl.getTouch(id).y), x, y)){
 
                     player.setMoving(false);
+                    background.setBackgroundNeedsToMove(false);
                     hud.scaleEverythingToSmallDPad(1.2);
                     touchControl.updateTouch(id, -100, -100);
 
@@ -124,6 +132,7 @@ public class GameCanvas extends BaseCanvas{
             if(touchControl.getDpadPressed(id)){
                 hud.revertScaleToOriginalDPad();
                 player.setMoving(false);
+                background.setBackgroundNeedsToMove(false);
             }
             //If the user releases the Action Buttons...
             else if(touchControl.getActionButtonPressed(id))

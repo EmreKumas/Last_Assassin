@@ -354,4 +354,20 @@ public class HUD{
 
         return null;
     }
+
+    public HUD_Elements getLeftArrowHUD(){
+        return leftArrowHUD;
+    }
+
+    public HUD_Elements getUpArrowHUD(){
+        return upArrowHUD;
+    }
+
+    public HUD_Elements getRightArrowHUD(){
+        return rightArrowHUD;
+    }
+
+    public HUD_Elements getDownArrowHUD(){
+        return downArrowHUD;
+    }
 }

@@ -44,9 +44,9 @@ public class Foreground{
         destination.set(destinationX, destinationY, destinationWidth, destinationHeight);
     }
 
-    public void update(double playerSpeed, boolean isMoving){
+    public void update(double playerSpeed, boolean foregroundNeedsToMove){
 
-        if((background.backgroundMovingHorizontally() || background.backgroundMovingVertically()) && isMoving){
+        if((background.backgroundMovingHorizontally() || background.backgroundMovingVertically()) && foregroundNeedsToMove){
 
             switch(background.getPressedButton()){
 

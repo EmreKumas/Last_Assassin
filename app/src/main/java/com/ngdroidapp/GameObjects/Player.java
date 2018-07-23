@@ -23,7 +23,7 @@ public class Player{
 
     //For the player to move continously on the screen.
     private int moveAmountX, moveAmountY;
-    private int speed;
+    private double speed;
     private double speedRatio;
 
     //Screen dimensions.
@@ -32,6 +32,7 @@ public class Player{
 
     private Background background;
     private Ground ground;
+    private Bridge bridge;
 
     private String lastPressedArrow = "";
 
@@ -59,19 +60,20 @@ public class Player{
     private static final int LEFT_JUMPING = 12;
 
 
-    public Player(NgApp root, Background background, Ground ground){
+    public Player(NgApp root, Background background, Ground ground, Bridge bridge){
 
         source = new Rect();
         destination = new Rect();
         this.ground = ground;
         this.background = background;
         this.ngApp = root;
+        this.bridge = bridge;
 
         screenWidth = root.appManager.getScreenWidth();
         screenHeight = root.appManager.getScreenHeight();
 
-        speed = screenWidth / 65;
-        speedRatio = 0.6;
+        speed = 25;
+        speedRatio = 0.5 * ((double) screenWidth / 1280.0);
 
         sourceX = 0;
         sourceY = 0;
@@ -88,10 +90,13 @@ public class Player{
     public void update(){
 
         if(!firstRun)
-            gravityFall();
+            gravityFall(ground);
 
         if(firstRun)
             firstRun = false;
+
+        if(bridge.isColliding(destinationX + destinationWidth, destinationY + destinationHeight))
+            gravityFall(bridge);
 
         animation.update();
     }
@@ -105,15 +110,15 @@ public class Player{
     /**
      * This method simulates the gravity.
      */
-    private void gravityFall(){
+    private void gravityFall(Collideables collideable){
 
-        for(i = 0; i < 7 && !ground.isColliding(destinationX + destinationWidth, destinationY + destinationHeight); i++)
+        for(i = 0; i < 7 && !collideable.isColliding(destinationX + destinationWidth, destinationY + destinationHeight); i++)
             if(isMoving)
                 movePlayer(moveAmountX, 6, lastPressedArrow);
             else
                 movePlayer(0, 6, lastPressedArrow);
 
-        while(ground.isColliding(destinationX + destinationWidth, destinationY + destinationHeight))
+        while(collideable.isColliding(destinationX + destinationWidth, destinationY + destinationHeight))
             if(isMoving)
                 movePlayer(moveAmountX, -6, lastPressedArrow);
             else
@@ -187,8 +192,8 @@ public class Player{
             //If the user is pressing to up arrow...
             case "UpArrow":
 
-                setAnimationType(CLIMBING);
-                movePlayer(0, -1 * speed, "UpArrow");
+//                setAnimationType(CLIMBING);
+//                movePlayer(0, -1 * speed, "UpArrow");
 
                 //We move the player, also we shrink other dpad buttons.
                 hud.setScaleDPad("UpArrow", 1.2);
@@ -209,8 +214,8 @@ public class Player{
             //If the user is pressing to down arrow...
             case "DownArrow":
 
-                setAnimationType(CLIMBING);
-                movePlayer(0, speed, "DownArrow");
+//                setAnimationType(CLIMBING);
+//                movePlayer(0, speed, "DownArrow");
 
                 //We move the player, also we shrink other dpad buttons.
                 hud.setScaleDPad("DownArrow", 1.2);
@@ -434,7 +439,7 @@ public class Player{
     }
 
     public int getSpeed(){
-        return speed;
+        return (int) speed;
     }
 
     public boolean isMoving(){

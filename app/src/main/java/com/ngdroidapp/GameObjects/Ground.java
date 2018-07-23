@@ -7,18 +7,15 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
 
-import com.ngdroidapp.TouchControl;
+public class Ground implements Collideables{
 
-public class Ground{
-
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private int screenWidth;
     private int screenHeight;
     private double widthRatio;
     private double heightRatio;
 
     private Background background;
-    private HUD hud;
-    private TouchControl touchControl;
 
     private Path ground;
     private Region region;
@@ -26,12 +23,9 @@ public class Ground{
 
     private Paint paint;
 
-    public Ground(Background background, HUD hud, TouchControl touchControl, int screenWidth, int screenHeight){
+    public Ground(Background background, int screenWidth, int screenHeight){
 
         this.background = background;
-        this.hud = hud;
-        this.touchControl = touchControl;
-
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
@@ -43,8 +37,6 @@ public class Ground{
         collisionDetector = new RectF();
 
         paint = new Paint();
-
-        paint.setColor(Color.TRANSPARENT);
     }
 
     public void draw(Canvas canvas){
@@ -59,7 +51,8 @@ public class Ground{
         ground.lineTo((int) (1840 * widthRatio), (int) (430 * heightRatio));
         ground.lineTo((int) (2290 * widthRatio), (int) (520 * heightRatio));
         ground.lineTo((int) (2500 * widthRatio), (int) (705 * heightRatio));
-        ground.lineTo((int) (2900 * widthRatio), (int) (705 * heightRatio));
+        ground.lineTo((int) (2700 * widthRatio), (int) (705 * heightRatio));
+        ground.lineTo((int) (2900 * widthRatio), (int) (680 * heightRatio));
         ground.lineTo((int) (3070 * widthRatio), (int) (640 * heightRatio));
         ground.lineTo((int) (3240 * widthRatio), (int) (620 * heightRatio));
         //Below
@@ -85,5 +78,9 @@ public class Ground{
     public boolean isColliding(int x, int y){
 
         return region.contains(x, y);
+    }
+
+    public void setPaint(int color){
+        paint.setColor(color);
     }
 }

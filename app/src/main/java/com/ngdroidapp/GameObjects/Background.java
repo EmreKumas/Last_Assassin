@@ -27,6 +27,8 @@ public class Background{
     private TouchControl touchControl;
     private String pressedButton;
 
+    private boolean backgroundNeedsToMove;
+
     public Background(String imagePath, NgApp root, TouchControl touchControl){
 
         source = new Rect();
@@ -73,57 +75,86 @@ public class Background{
             }
 
             //Now, we know where the user touched.
-            //If the user touches to Right Arrow, if the players position is greater than the half of the screens width and if the background is not fully loaded on horizontally...
-            if(hud.pressedButtonDPad(touchLocationX, touchLocationY).equals("RightArrow") && (playerX + player.getDestinationWidth()) > screenWidth / 2 && sourceX + sourceWidth < 3840){
+            switch(hud.pressedButtonDPad(touchLocationX, touchLocationY)){
 
-                pressedButton = "RightArrow";
+                //If the user touches to Right Arrow, if the players position is greater than the half of the screens width and if the background is not fully loaded on horizontally...
+                case "RightArrow":
 
-                //When we move the background, if it won't be passing the limits of the source image, we will slide it.
-                if(sourceX + player.getSpeed() < 3840 - sourceWidth)
-                    sourceX += player.getSpeed();
-                //Else, we will make it static. Otherwise, the right of the screen will be black because the source image is fully loaded.
-                else
-                    sourceX = 3840 - sourceWidth;
+                    pressedButton = "RightArrow";
 
-                source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
-            }
+                    if((playerX + player.getDestinationWidth()) > screenWidth / 2 && sourceX + sourceWidth < 3840){
 
-            //The same goes here. If the user touches to Left Arrow, if the players position is less than the half of the screens width and if the backgrounds beginning is not loaded yet...
-            else if(hud.pressedButtonDPad(touchLocationX, touchLocationY).equals("LeftArrow") && playerX < screenWidth / 2 && sourceX > 0){
+                        //When we move the background, if it won't be passing the limits of the source image, we will slide it.
+                        if(sourceX + player.getSpeed() < 3840 - sourceWidth)
+                            sourceX += player.getSpeed();
+                            //Else, we will make it static. Otherwise, the right of the screen will be black because the source image is fully loaded.
+                        else
+                            sourceX = 3840 - sourceWidth;
 
-                pressedButton = "LeftArrow";
+                        source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
 
-                //When we move the background, if the image doesn't pass the limits on the left side, we will slide it.
-                if(sourceX - player.getSpeed() > 0)
-                    sourceX -= player.getSpeed();
-                else
-                    sourceX = 0;
+                        backgroundNeedsToMove = true;
+                    }else
+                        backgroundNeedsToMove = false;
 
-                source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
-            }
+                    break;
 
-            else if(hud.pressedButtonDPad(touchLocationX, touchLocationY).equals("UpArrow") && playerY < screenHeight / 2 && sourceY > 0){
+                //The same goes here. If the user touches to Left Arrow, if the players position is less than the half of the screens width and if the backgrounds beginning is not loaded yet...
+                case "LeftArrow":
 
-                pressedButton = "UpArrow";
+                    pressedButton = "LeftArrow";
 
-                if(sourceY - player.getSpeed() > 0)
-                    sourceY -= player.getSpeed();
-                else
-                    sourceY = 0;
+                    if(playerX < screenWidth / 2 && sourceX > 0){
 
-                source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
-            }
+                        //When we move the background, if the image doesn't pass the limits on the left side, we will slide it.
+                        if(sourceX - player.getSpeed() > 0)
+                            sourceX -= player.getSpeed();
+                        else
+                            sourceX = 0;
 
-            else if(hud.pressedButtonDPad(touchLocationX, touchLocationY).equals("DownArrow") && playerY + player.getDestinationHeight() > screenHeight / 2 && sourceY + sourceHeight < 2160){
+                        source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
 
-                pressedButton = "DownArrow";
+                        backgroundNeedsToMove = true;
+                    }else
+                        backgroundNeedsToMove = false;
 
-                if(sourceY + player.getSpeed() < 2160 - sourceHeight)
-                    sourceY += player.getSpeed();
-                else
-                    sourceY = 2160 - sourceHeight;
+                    break;
+                case "UpArrow":
 
-                source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
+                    pressedButton = "UpArrow";
+
+                    if(playerY < screenHeight / 2 && sourceY > 0){
+
+                        if(sourceY - player.getSpeed() > 0)
+                            sourceY -= player.getSpeed();
+                        else
+                            sourceY = 0;
+
+                        source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
+
+                        backgroundNeedsToMove = true;
+                    }else
+                        backgroundNeedsToMove = false;
+
+                    break;
+                case "DownArrow":
+
+                    pressedButton = "DownArrow";
+
+                    if(playerY + player.getDestinationHeight() > screenHeight / 2 && sourceY + sourceHeight < 2160){
+
+                        if(sourceY + player.getSpeed() < 2160 - sourceHeight)
+                            sourceY += player.getSpeed();
+                        else
+                            sourceY = 2160 - sourceHeight;
+
+                        source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
+
+                        backgroundNeedsToMove = true;
+                    }else
+                        backgroundNeedsToMove = false;
+
+                    break;
             }
         }
     }
@@ -159,5 +190,13 @@ public class Background{
 
     public String getPressedButton(){
         return pressedButton;
+    }
+
+    public boolean isBackgroundNeedsToMove(){
+        return backgroundNeedsToMove;
+    }
+
+    public void setBackgroundNeedsToMove(boolean backgroundNeedsToMove){
+        this.backgroundNeedsToMove = backgroundNeedsToMove;
     }
 }
