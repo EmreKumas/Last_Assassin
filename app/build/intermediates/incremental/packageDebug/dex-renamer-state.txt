@@ -1,4 +1,4 @@
-#Mon Jul 23 11:40:01 EET 2018
+#Tue Jul 24 13:24:37 EET 2018
 base.0=C\:\\Users\\Emre\\Desktop\\Dosyalar\\Projects\\Last_Assassin\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\1f\\main
 renamed.0=classes.dex
 file.0=C\:\\Users\\Emre\\Desktop\\Dosyalar\\Projects\\Last_Assassin\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\1f\\main\\classes.dex

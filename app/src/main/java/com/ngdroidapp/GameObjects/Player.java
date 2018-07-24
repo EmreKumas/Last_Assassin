@@ -9,6 +9,7 @@ import android.util.DisplayMetrics;
 import com.ngdroidapp.NgApp;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import istanbul.gamelab.ngdroid.util.Utils;
 
@@ -33,8 +34,14 @@ public class Player{
     private Background background;
     private Ground ground;
     private Bridge bridge;
+    private AirObjects airObjects;
+
+    private List<Collideables> collideables;
 
     private String lastPressedArrow = "";
+
+    private double jumpCycle = 0.8;
+    private boolean onSurface;
 
     //animation
     private Animations animation;
@@ -60,7 +67,7 @@ public class Player{
     private static final int LEFT_JUMPING = 12;
 
 
-    public Player(NgApp root, Background background, Ground ground, Bridge bridge){
+    public Player(NgApp root, Background background, Ground ground, Bridge bridge, AirObjects airObjects){
 
         source = new Rect();
         destination = new Rect();
@@ -68,12 +75,18 @@ public class Player{
         this.background = background;
         this.ngApp = root;
         this.bridge = bridge;
+        this.airObjects = airObjects;
+
+        collideables = new ArrayList<>();
+        collideables.add(ground);
+        collideables.add(bridge);
+        collideables.add(airObjects);
 
         screenWidth = root.appManager.getScreenWidth();
         screenHeight = root.appManager.getScreenHeight();
 
         speed = 25;
-        speedRatio = 0.5 * ((double) screenWidth / 1280.0);
+        speedRatio = 0.8 * ((double) screenWidth / 1280.0);
 
         sourceX = 0;
         sourceY = 0;
@@ -89,14 +102,26 @@ public class Player{
 
     public void update(){
 
-        if(!firstRun)
-            gravityFall(ground);
+        onSurface = false;
 
-        if(firstRun)
+        if(!firstRun){
+            //GRAVITY FALL
+            if(!isColliding()){
+                jumpCycle += 0.25;
+                gravityFall(8);
+            }else
+                jumpCycle = 0.8;
+
+            //GRAVITY PUSH
+            if(isColliding() && !onSurface)
+                gravityPush();
+
+        }else
             firstRun = false;
 
-        if(bridge.isColliding(destinationX + destinationWidth, destinationY + destinationHeight))
-            gravityFall(bridge);
+        //Player movement
+        if(isMoving)
+            movePlayer(moveAmountX, moveAmountY, lastPressedArrow);
 
         animation.update();
     }
@@ -108,22 +133,39 @@ public class Player{
     }
 
     /**
-     * This method simulates the gravity.
+     * This method checks if the player is colliding with the ground, bridge or airObjects.
      */
-    private void gravityFall(Collideables collideable){
+    private boolean isColliding(){
 
-        for(i = 0; i < 7 && !collideable.isColliding(destinationX + destinationWidth, destinationY + destinationHeight); i++)
-            if(isMoving)
-                movePlayer(moveAmountX, 6, lastPressedArrow);
-            else
-                movePlayer(0, 6, lastPressedArrow);
+        for(Collideables collideable : collideables)
+            if(collideable.isColliding(destinationX + destinationWidth, destinationY + destinationHeight))
+                return true;
 
-        while(collideable.isColliding(destinationX + destinationWidth, destinationY + destinationHeight))
-            if(isMoving)
-                movePlayer(moveAmountX, -6, lastPressedArrow);
-            else
-                movePlayer(0, -6, lastPressedArrow);
+        return false;
+    }
 
+    /**
+     * This method simulates the gravityFall.
+     */
+    private void gravityFall(@SuppressWarnings("SameParameterValue") int loopAmount){
+
+        for(i = 0; i < loopAmount && !isColliding(); i++)
+            destinationY += (int) (jumpCycle * 2);
+
+        destination.set(destinationX, destinationY, destinationX + destinationWidth, destinationY + destinationHeight);
+    }
+
+    /**
+     * This method simulates the gravityPush.
+     */
+    private void gravityPush(){
+
+        while(isColliding())
+            destinationY -= 1;
+        destinationY++;
+        onSurface = true;
+
+        destination.set(destinationX, destinationY, destinationX + destinationWidth, destinationY + destinationHeight);
     }
 
     /**
@@ -288,7 +330,7 @@ public class Player{
             Bitmap[] right_idle = new Bitmap[10];
             for(int j = 0; j < 10; j++){
                 //noinspection ConstantConditions
-                right_idle[j] = Bitmap.createBitmap(spriteSheet, j * 140, 0, 140, 135);
+                right_idle[j] = Bitmap.createBitmap(spriteSheet, j * 140, 0, 140, 120);
             }
 
             sprites.add(right_idle);
@@ -297,7 +339,7 @@ public class Player{
             //RIGHT_GLIDE frames
             Bitmap[] right_glide = new Bitmap[10];
             for(int j = 0; j < 10; j++){
-                right_glide[j] = Bitmap.createBitmap(spriteSheet, j * 140, 132, 140, 135);
+                right_glide[j] = Bitmap.createBitmap(spriteSheet, j * 140, 132, 140, 120);
 
             }
             sprites.add(right_glide);
@@ -399,7 +441,7 @@ public class Player{
 
     public void setAnimationType(final int type){
         animation.setFrames(sprites.get(type));
-        System.out.println("size of sprite array arrayList : " + sprites.size());
+//        System.out.println("size of sprite array arrayList : " + sprites.size());
 
         if(type == RIGHT_ATTACK || type == LEFT_ATTACK){
             animation.setDelay(30);

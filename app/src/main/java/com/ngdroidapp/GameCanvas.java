@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
 
+import com.ngdroidapp.GameObjects.AirObjects;
 import com.ngdroidapp.GameObjects.Background;
 import com.ngdroidapp.GameObjects.Bridge;
 import com.ngdroidapp.GameObjects.Direction;
@@ -20,6 +21,7 @@ public class GameCanvas extends BaseCanvas{
     private Foreground foreground;
     private Ground ground;
     private Bridge bridge;
+    private AirObjects airObjects;
     private Player player;
     private HUD hud;
 
@@ -38,29 +40,32 @@ public class GameCanvas extends BaseCanvas{
         hud = new HUD(root);
         ground = new Ground(background, getWidth(), getHeight());
         bridge = new Bridge(background, getWidth(), getHeight());
-        player = new Player(root, background, ground, bridge);
+        airObjects = new AirObjects(background, getWidth(), getHeight());
+        player = new Player(root, background, ground, bridge, airObjects);
 
         //Setting the player's coordinates.
         player.setCoordinates((getWidth() / 4) - player.getDestinationWidth(), (int) (getHeight() / 1.7) - player.getDestinationHeight());
         ground.setPaint(Color.TRANSPARENT);
-        bridge.setPaint(Color.TRANSPARENT);
+        bridge.setPaint(Color.GREEN);
+        airObjects.setPaint(Color.BLUE);
     }
 
     public void update(){
 
         background.update(player, hud, touchControl.isDpadPressing());
         player.update();
-        foreground.update(player.getSpeed(), background.isBackgroundNeedsToMove());
+        foreground.update();
 
     }
 
     public void draw(Canvas canvas){
 
         background.draw(canvas);
-        ground.draw(canvas);
-        bridge.draw(canvas);
         player.draw(canvas);
         foreground.draw(canvas);
+        ground.draw(canvas);
+        bridge.draw(canvas);
+        airObjects.draw(canvas);
         hud.draw(canvas);
 
         //FPS

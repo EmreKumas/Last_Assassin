@@ -1,17 +1,13 @@
 package com.ngdroidapp.GameObjects;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
 
-public class Ground implements Collideables{
+public class AirObjects implements Collideables{
 
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private int screenWidth;
-    private int screenHeight;
     private double widthRatio;
     private double heightRatio;
 
@@ -23,11 +19,9 @@ public class Ground implements Collideables{
 
     private Paint paint;
 
-    public Ground(Background background, int screenWidth, int screenHeight){
+    public AirObjects(Background background, int screenWidth, int screenHeight){
 
         this.background = background;
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
 
         widthRatio = (double) screenWidth / 1280;
         heightRatio = (double) screenHeight / 720;
@@ -43,22 +37,11 @@ public class Ground implements Collideables{
 
         ground.reset();
 
-        ground.moveTo(0, (int) (690 * heightRatio));
-        ground.lineTo((int) (410 * widthRatio), (int) (650 * heightRatio));
-        ground.lineTo((int) (1050 * widthRatio), (int) (560 * heightRatio));
-        ground.lineTo((int) (1390 * widthRatio), (int) (510 * heightRatio));
-        ground.lineTo((int) (1670 * widthRatio), (int) (420 * heightRatio));
-        ground.lineTo((int) (1840 * widthRatio), (int) (420 * heightRatio));
-        ground.lineTo((int) (2290 * widthRatio), (int) (510 * heightRatio));
-        ground.lineTo((int) (2500 * widthRatio), (int) (705 * heightRatio));
-        ground.lineTo((int) (2700 * widthRatio), (int) (705 * heightRatio));
-        ground.lineTo((int) (2900 * widthRatio), (int) (680 * heightRatio));
-        ground.lineTo((int) (3070 * widthRatio), (int) (650 * heightRatio));
-        ground.lineTo((int) (3240 * widthRatio), (int) (610 * heightRatio));
-        //Below
-        ground.lineTo((int) (3240 * widthRatio), screenHeight);
-        ground.lineTo(0, screenHeight);
-        ground.lineTo(0, (int) (660 * heightRatio));
+        ground.moveTo((int) (2375  * widthRatio), (int) (210 * heightRatio));
+        ground.lineTo((int) (2375 * widthRatio), (int) (70 * heightRatio));
+        ground.lineTo((int) (3100 * widthRatio), (int) (70 * heightRatio));
+        ground.lineTo((int) (3100 * widthRatio), (int) (210 * heightRatio));
+        ground.lineTo((int) (2375 * widthRatio), (int) (210 * heightRatio));
         ground.close();
 
         //Offsetting the path.
@@ -73,8 +56,10 @@ public class Ground implements Collideables{
         //Setting the region for collision detection.
         region.setPath(ground, new Region((int) collisionDetector.left, (int) collisionDetector.top,
                 (int) collisionDetector.right, (int) collisionDetector.bottom));
+
     }
 
+    @Override
     public boolean isColliding(int x, int y){
 
         return region.contains(x, y);
