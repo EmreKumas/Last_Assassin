@@ -1,7 +1,6 @@
 package com.ngdroidapp.GameObjects;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -50,8 +49,8 @@ public class Ground implements Collideables{
         ground.lineTo((int) (1670 * widthRatio), (int) (420 * heightRatio));
         ground.lineTo((int) (1840 * widthRatio), (int) (420 * heightRatio));
         ground.lineTo((int) (2290 * widthRatio), (int) (510 * heightRatio));
-        ground.lineTo((int) (2500 * widthRatio), (int) (705 * heightRatio));
-        ground.lineTo((int) (2700 * widthRatio), (int) (705 * heightRatio));
+        ground.lineTo((int) (2500 * widthRatio), (int) (700 * heightRatio));
+        ground.lineTo((int) (2700 * widthRatio), (int) (700 * heightRatio));
         ground.lineTo((int) (2900 * widthRatio), (int) (680 * heightRatio));
         ground.lineTo((int) (3070 * widthRatio), (int) (650 * heightRatio));
         ground.lineTo((int) (3240 * widthRatio), (int) (610 * heightRatio));

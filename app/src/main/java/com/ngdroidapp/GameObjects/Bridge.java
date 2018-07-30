@@ -1,7 +1,6 @@
 package com.ngdroidapp.GameObjects;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -38,9 +37,9 @@ public class Bridge implements Collideables{
 
         ground.reset();
 
-        ground.moveTo((int) (1850  * widthRatio), (int) (480 * heightRatio));
-        ground.lineTo((int) (2350 * widthRatio), (int) (210 * heightRatio));
-        ground.lineTo((int) (2550 * widthRatio), (int) (210 * heightRatio));
+        ground.moveTo((int) (1875  * widthRatio), (int) (480 * heightRatio));
+        ground.lineTo((int) (2375 * widthRatio), (int) (175 * heightRatio));
+        ground.lineTo((int) (2400 * widthRatio), (int) (350 * heightRatio));
         ground.lineTo((int) (2050 * widthRatio), (int) (480 * heightRatio));
         ground.lineTo((int) (1850 * widthRatio), (int) (480 * heightRatio));
         ground.close();

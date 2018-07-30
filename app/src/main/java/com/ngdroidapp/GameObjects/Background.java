@@ -5,7 +5,8 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 
 import com.ngdroidapp.NgApp;
-import com.ngdroidapp.TouchControl;
+import com.ngdroidapp.OnScreenControls.HUD;
+import com.ngdroidapp.OnScreenControls.TouchControl;
 
 import istanbul.gamelab.ngdroid.util.Utils;
 
@@ -25,9 +26,6 @@ public class Background{
     private int screenWidth, screenHeight;
 
     private TouchControl touchControl;
-    private String pressedButton;
-
-    private boolean backgroundNeedsToMove;
 
     public Background(String imagePath, NgApp root, TouchControl touchControl){
 
@@ -56,13 +54,13 @@ public class Background{
         destination.set(destinationX, destinationY, destinationWidth, destinationHeight);
     }
 
-    public void update(Player player, HUD hud, boolean isDpadPressing){
+    public void update(Player player, HUD hud, boolean isMoving){
 
         //Getting players current positions.
         playerX = player.getDestinationX() + player.getDestinationWidth();
         playerY = player.getDestinationY() + player.getDestinationHeight();
 
-        if(isDpadPressing){
+        if(isMoving && touchControl.isDpadPressing()){
 
             //If the user is pressing dpad, we need to check if the background needs to move or not.
             //First, lets check where the user is touching on the dpad.
@@ -80,8 +78,6 @@ public class Background{
                 //If the user touches to Right Arrow, if the players position is greater than the half of the screens width and if the background is not fully loaded on horizontally...
                 case "RightArrow":
 
-                    pressedButton = "RightArrow";
-
                     if((playerX + player.getDestinationWidth()) > screenWidth / 2 && sourceX + sourceWidth < 3840){
 
                         //When we move the background, if it won't be passing the limits of the source image, we will slide it.
@@ -92,17 +88,22 @@ public class Background{
                             sourceX = 3840 - sourceWidth;
 
                         source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
+                    }
 
-                        backgroundNeedsToMove = true;
-                    }else
-                        backgroundNeedsToMove = false;
+                    if(playerY < screenHeight / 2 && sourceY > 0){
+
+                        if(sourceY - (player.getSpeed() / 2) > 0)
+                            sourceY -= player.getSpeed() / 2;
+                        else
+                            sourceY = 0;
+
+                        source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
+                    }
 
                     break;
 
                 //The same goes here. If the user touches to Left Arrow, if the players position is less than the half of the screens width and if the backgrounds beginning is not loaded yet...
                 case "LeftArrow":
-
-                    pressedButton = "LeftArrow";
 
                     if(playerX < screenWidth / 2 && sourceX > 0){
 
@@ -113,35 +114,34 @@ public class Background{
                             sourceX = 0;
 
                         source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
+                    }
 
-                        backgroundNeedsToMove = true;
-                    }else
-                        backgroundNeedsToMove = false;
+                    if(playerY < screenHeight / 2 && sourceY > 0){
+
+                        if(sourceY - (player.getSpeed() / 2) > 0)
+                            sourceY -= player.getSpeed() / 2;
+                        else
+                            sourceY = 0;
+
+                        source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
+                    }
 
                     break;
                 case "UpArrow":
 
-                    pressedButton = "UpArrow";
-
-                    if(playerY < screenHeight / 2 && sourceY > 0){
-
+                    if(playerY - player.getDestinationHeight() <= screenHeight / 2 && sourceY > 0){
                         if(sourceY - player.getSpeed() > 0)
                             sourceY -= player.getSpeed();
                         else
                             sourceY = 0;
 
                         source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
-
-                        backgroundNeedsToMove = true;
-                    }else
-                        backgroundNeedsToMove = false;
+                    }
 
                     break;
                 case "DownArrow":
 
-                    pressedButton = "DownArrow";
-
-                    if(playerY + player.getDestinationHeight() > screenHeight / 2 && sourceY + sourceHeight < 2160){
+                    if(playerY >= screenHeight / 2 && sourceY + sourceHeight < 2160){
 
                         if(sourceY + player.getSpeed() < 2160 - sourceHeight)
                             sourceY += player.getSpeed();
@@ -149,10 +149,7 @@ public class Background{
                             sourceY = 2160 - sourceHeight;
 
                         source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
-
-                        backgroundNeedsToMove = true;
-                    }else
-                        backgroundNeedsToMove = false;
+                    }
 
                     break;
             }
@@ -166,6 +163,7 @@ public class Background{
     }
 
     //Is the image moving on vertically... If its source is not zero and not the max limit...
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean backgroundMovingVertically(){
 
         return sourceY != 0 && sourceY + sourceHeight < 2160;
@@ -188,15 +186,13 @@ public class Background{
         return sourceHeight;
     }
 
-    public String getPressedButton(){
-        return pressedButton;
-    }
+    public void addSourceY(int amount){
 
-    public boolean isBackgroundNeedsToMove(){
-        return backgroundNeedsToMove;
-    }
+        if(sourceY + amount <= 2160 - sourceHeight)
+            sourceY += amount;
+        else
+            sourceY = 2160 - sourceHeight;
 
-    public void setBackgroundNeedsToMove(boolean backgroundNeedsToMove){
-        this.backgroundNeedsToMove = backgroundNeedsToMove;
+        source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
     }
 }

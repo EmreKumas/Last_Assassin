@@ -47,6 +47,7 @@ public class Foreground{
     public void update(){
 
         sourceX = background.getSourceX();
+        sourceY = background.getSourceY();
         source.set(sourceX, sourceY, sourceX + sourceWidth, sourceY + sourceHeight);
     }
 

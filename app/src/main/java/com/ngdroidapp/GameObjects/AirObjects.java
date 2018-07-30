@@ -37,11 +37,13 @@ public class AirObjects implements Collideables{
 
         ground.reset();
 
-        ground.moveTo((int) (2375  * widthRatio), (int) (210 * heightRatio));
+        ground.moveTo((int) (2375  * widthRatio), (int) (130 * heightRatio));
         ground.lineTo((int) (2375 * widthRatio), (int) (70 * heightRatio));
         ground.lineTo((int) (3100 * widthRatio), (int) (70 * heightRatio));
         ground.lineTo((int) (3100 * widthRatio), (int) (210 * heightRatio));
-        ground.lineTo((int) (2375 * widthRatio), (int) (210 * heightRatio));
+        ground.lineTo((int) (2500 * widthRatio), (int) (210 * heightRatio));
+        ground.lineTo((int) (2500 * widthRatio), (int) (130 * heightRatio));
+        ground.lineTo((int) (2375  * widthRatio), (int) (130 * heightRatio));
         ground.close();
 
         //Offsetting the path.

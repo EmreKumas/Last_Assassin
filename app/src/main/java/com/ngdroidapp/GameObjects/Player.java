@@ -7,9 +7,12 @@ import android.graphics.Rect;
 import android.util.DisplayMetrics;
 
 import com.ngdroidapp.NgApp;
+import com.ngdroidapp.OnScreenControls.HUD;
+import com.ngdroidapp.OnScreenControls.TouchControl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import istanbul.gamelab.ngdroid.util.Utils;
 
@@ -18,37 +21,48 @@ public class Player{
     private Direction direction;
     private NgApp ngApp;
     private Rect source, destination;
+    private HUD hud;
+    private TouchControl touchControl;
 
     @SuppressWarnings("FieldCanBeLocal")
     private int destinationWidth, destinationHeight, sourceX, sourceY, destinationX, destinationY, i;
 
     //For the player to move continously on the screen.
     private int moveAmountX, moveAmountY;
-    private double speed;
+    private double speed, velY;
+    private final double gravity = 3;
     private double speedRatio;
 
     //Screen dimensions.
-    private int screenWidth;
-    private int screenHeight;
+    private int screenWidth, screenHeight;
 
     private Background background;
-    private Ground ground;
-    private Bridge bridge;
-    private AirObjects airObjects;
 
     private List<Collideables> collideables;
+    private List<nonCollideables> nonCollideables;
 
     private String lastPressedArrow = "";
 
+    //variables for jump action for player
+    private boolean enableGravity = true;
+    private boolean jump;
     private double jumpCycle = 0.8;
-    private boolean onSurface;
+    private boolean onSurface, stopPoint;
+    private boolean isLanded = true;
+
+    @SuppressWarnings("FieldCanBeLocal")
+    private String collidedDirection = "";
+
+    //variables for gliding action for player
+    private boolean isGliding = false;
+    private boolean isPressedLeftOrRight = false;
+    private int dpadTouchLocationX, dpadTouchLocationY, actionTouchLocationX, actionTouchLocationY;
 
     //animation
     private Animations animation;
     private boolean isMoving;
-    private static boolean isAttacked;
-    private boolean isGliding;
     private boolean firstRun = true;
+    private boolean isClimbing;
     private ArrayList<Bitmap[]> sprites;
 
     //animation actions
@@ -67,26 +81,29 @@ public class Player{
     private static final int LEFT_JUMPING = 12;
 
 
-    public Player(NgApp root, Background background, Ground ground, Bridge bridge, AirObjects airObjects){
+    public Player(NgApp root, Background background, Ground ground, Bridge bridge, AirObjects airObjects, Obstacles obstacles, HUD hud, TouchControl touchControl){
 
         source = new Rect();
         destination = new Rect();
-        this.ground = ground;
         this.background = background;
         this.ngApp = root;
-        this.bridge = bridge;
-        this.airObjects = airObjects;
+        this.hud = hud;
+        this.touchControl = touchControl;
 
         collideables = new ArrayList<>();
+        nonCollideables = new ArrayList<>();
+
         collideables.add(ground);
         collideables.add(bridge);
         collideables.add(airObjects);
+        nonCollideables.add(obstacles);
 
         screenWidth = root.appManager.getScreenWidth();
         screenHeight = root.appManager.getScreenHeight();
 
         speed = 25;
         speedRatio = 0.8 * ((double) screenWidth / 1280.0);
+        velY = -12;
 
         sourceX = 0;
         sourceY = 0;
@@ -104,24 +121,59 @@ public class Player{
 
         onSurface = false;
 
+        //firsRun is boolean for skipping collision control at first update method in the game.
+        //If it checks collisions before first draw, program gives NullPointerException.
         if(!firstRun){
             //GRAVITY FALL
-            if(!isColliding()){
-                jumpCycle += 0.25;
+            if(!isCollidingCollideable() && !stopPoint && !isClimbing){
+
+                if(isGliding)
+                    jumpCycle = 1;
+                else
+                    jumpCycle += 0.25;
+
                 gravityFall(8);
+
             }else
                 jumpCycle = 0.8;
 
             //GRAVITY PUSH
-            if(isColliding() && !onSurface)
+            if(isCollidingCollideable() && !onSurface && !stopPoint){
                 gravityPush();
+            }
 
+            //NON-COLLIDEABLES
+            if(isCollidingnonCollideable()){
+                //Convert string to an appropriate format.
+                collidedDirection = direction.name();
+                collidedDirection = collidedDirection.substring(0, 1) + collidedDirection.substring(1, collidedDirection.length()).toLowerCase(Locale.ENGLISH);
+
+                isMoving = !lastPressedArrow.contains(collidedDirection);
+                stopPoint = true;
+            }else{
+                stopPoint = false;
+                if(!lastPressedArrow.equals(direction.name().substring(0, 1) + direction.name().substring(1, direction.name().length()).toLowerCase(Locale.ENGLISH) + "Arrow")){
+                    lastPressedArrow = direction.name().substring(0, 1) + direction.name().substring(1, direction.name().length()).toLowerCase(Locale.ENGLISH) + "Arrow";
+
+                    if(lastPressedArrow.equals("RightArrow"))
+                        moveAmountX = Math.abs(moveAmountX);
+                    else
+                        moveAmountX = Math.abs(moveAmountX) * -1;
+                }
+            }
         }else
             firstRun = false;
 
         //Player movement
         if(isMoving)
             movePlayer(moveAmountX, moveAmountY, lastPressedArrow);
+
+        //Player jump
+        if(jump && !isGliding)
+            Jump();
+
+        if(onSurface)
+            isGliding = false;
 
         animation.update();
     }
@@ -135,10 +187,22 @@ public class Player{
     /**
      * This method checks if the player is colliding with the ground, bridge or airObjects.
      */
-    private boolean isColliding(){
+    private boolean isCollidingCollideable(){
 
         for(Collideables collideable : collideables)
             if(collideable.isColliding(destinationX + destinationWidth, destinationY + destinationHeight))
+                return true;
+
+        return false;
+    }
+
+    /**
+     * This method checks if the player is colliding with nonCollideables.
+     */
+    private boolean isCollidingnonCollideable(){
+
+        for(nonCollideables nonCollideable : nonCollideables)
+            if(nonCollideable.isColliding(destinationX + destinationWidth, destinationY + destinationHeight))
                 return true;
 
         return false;
@@ -149,8 +213,17 @@ public class Player{
      */
     private void gravityFall(@SuppressWarnings("SameParameterValue") int loopAmount){
 
-        for(i = 0; i < loopAmount && !isColliding(); i++)
-            destinationY += (int) (jumpCycle * 2);
+        for(i = 0; i < loopAmount && !isCollidingCollideable(); i++){
+
+            destinationY += (int) (jumpCycle * 1.75);
+        }
+
+        //To stabilize the player-screen ratio in which the player always needs to be closed to the mid of the screen.
+        while(destinationY > screenHeight / 2 && background.getSourceY() + background.getSourceHeight() < 2160){
+
+            destinationY--;
+            background.addSourceY(1);
+        }
 
         destination.set(destinationX, destinationY, destinationX + destinationWidth, destinationY + destinationHeight);
     }
@@ -160,11 +233,61 @@ public class Player{
      */
     private void gravityPush(){
 
-        while(isColliding())
-            destinationY -= 1;
+        while(isCollidingCollideable()){
+
+            destinationY--;
+        }
+
         destinationY++;
+
+        //To stabilize the player-screen ratio in which the player always needs to be closed to the mid of the screen.
+        while(destinationY < screenHeight / 2 && background.getSourceY() > 0){
+
+            destinationY++;
+            background.addSourceY(-1);
+        }
+
         onSurface = true;
 
+        destination.set(destinationX, destinationY, destinationX + destinationWidth, destinationY + destinationHeight);
+    }
+
+    /**
+     * This method creates jump movement for the player.
+     */
+    private void Jump(){
+
+        isLanded = false;  //checks whether the player landed on surface or not.
+        isMoving = false;
+
+        destinationY += velY;  //first part of the jump movement towards Y axis
+        velY += gravity;
+
+        /*if (!background.backgroundMovingHorizontally()) {
+            if (direction == Direction.LEFT) {
+                destinationX -= 25;
+            } else if (direction == Direction.RIGHT) {
+                destinationX += 25;
+            }
+        }*/
+
+        //falling part of the jump movement.velocity towards Y axis becomes 0 if the player at hMax and free falling starts with gravity
+        if(velY == 0){
+            enableGravity = true;
+            if(!isGliding){
+                gravityFall(10);
+            }
+            onSurface = false;
+        }
+
+        //If the player touches the ground after jump move
+        if(isCollidingCollideable() && enableGravity){
+            isLanded = true;
+            velY = -12; //set default velocity on Y axis again for another jump action
+            onSurface = true;
+            enableGravity = false; //checks the collision with ground before and after jump.
+            jump = false;
+        }
         destination.set(destinationX, destinationY, destinationX + destinationWidth, destinationY + destinationHeight);
     }
 
@@ -178,7 +301,6 @@ public class Player{
 
         destination.set(destinationX, destinationY, destinationX + destinationWidth, destinationY + destinationHeight);
     }
-
 
     /**
      * This method moves the player on the screen.
@@ -197,8 +319,9 @@ public class Player{
                 destinationX -= x;
         }
 
-        if(!background.backgroundMovingVertically())
+        if(!background.backgroundMovingVertically()){
             destinationY += y;
+        }
 
         //Variables for continuous move.
         moveAmountX = x;
@@ -208,13 +331,12 @@ public class Player{
         destination.set(destinationX, destinationY, destinationX + destinationWidth, destinationY + destinationHeight);
     }
 
-
     /**
      * This method defines the reaction of the player when a dpad button is pressed.
      */
     public void dpadPressed(String pressedArrow, HUD hud){
 
-        //If the dpad is pressed, it means the player is moving.
+        //If the dpad is pressed, it means the player is moving ONLY IF THE CONDITIONS ARE TRUE.
         isMoving = true;
 
         switch(pressedArrow){
@@ -222,10 +344,20 @@ public class Player{
             //If the user is pressing to left arrow...
             case "LeftArrow":
 
+                isPressedLeftOrRight = true;
                 direction = Direction.LEFT;
                 setAnimationType(LEFT_RUNNING);
-                movePlayer((int) (-1 * speed * speedRatio), 0, "LeftArrow");
+                if(!isCollidingnonCollideable()){
+                    movePlayer((int) (-1 * speed * speedRatio), 0, "LeftArrow");
+                }else
+                    isMoving = false;
 
+                if(isLanded)
+                    velY = -30;
+
+                if(!isGliding){
+                    setAnimationType(LEFT_RUNNING);
+                }
 
                 //We move the player, also we shrink other dpad buttons.
                 hud.setScaleDPad("LeftArrow", 1.2);
@@ -234,8 +366,11 @@ public class Player{
             //If the user is pressing to up arrow...
             case "UpArrow":
 
-//                setAnimationType(CLIMBING);
-//                movePlayer(0, -1 * speed, "UpArrow");
+                isPressedLeftOrRight = false;
+                isGliding = false;
+                isClimbing = true;
+                setAnimationType(CLIMBING);
+                movePlayer(0, (int) (-1 * speed * speedRatio), "UpArrow");
 
                 //We move the player, also we shrink other dpad buttons.
                 hud.setScaleDPad("UpArrow", 1.2);
@@ -244,10 +379,20 @@ public class Player{
             //If the user is pressing to right arrow...
             case "RightArrow":
 
+                isPressedLeftOrRight = true;
                 direction = Direction.RIGHT;
                 setAnimationType(RIGHT_RUNNING);
-                movePlayer((int) (speed * speedRatio), 0, "RightArrow");
 
+                if(!isCollidingnonCollideable())
+                    movePlayer((int) (speed * speedRatio), 0, "RightArrow");
+                else
+                    isMoving = false;
+
+                if(isLanded)
+                    velY = -30;
+
+                if(!isGliding)
+                    setAnimationType(RIGHT_RUNNING);
 
                 //We move the player, also we shrink other dpad buttons.
                 hud.setScaleDPad("RightArrow", 1.2);
@@ -256,15 +401,16 @@ public class Player{
             //If the user is pressing to down arrow...
             case "DownArrow":
 
-//                setAnimationType(CLIMBING);
-//                movePlayer(0, speed, "DownArrow");
+                isPressedLeftOrRight = false;
+                isGliding = false;
+                setAnimationType(CLIMBING);
+                movePlayer(0, (int) (speed * speedRatio), "DownArrow");
 
                 //We move the player, also we shrink other dpad buttons.
                 hud.setScaleDPad("DownArrow", 1.2);
                 break;
         }
     }
-
 
     /**
      * This method defines the reaction of the player when an action button is pressed.
@@ -273,24 +419,28 @@ public class Player{
 
         switch(pressedActionButton){
 
-            //If the user is pressing to X Button...
+            //If the user is pressing to X Button, Jump
             case "XButton":
 
-                if(direction == Direction.RIGHT){
-                    setAnimationType(RIGHT_JUMPING);
-                }else if(direction == Direction.LEFT){
-                    System.out.println("inside direction left");
-                    setAnimationType(LEFT_JUMPING);
-                }
+                isGliding = false;
+                if(isLanded){
 
-                //We make the action, also we shrink other action buttons.
-                hud.setScaleActions("XButton", 1.2);
+                    velY = -60;
+                    jump = true;
+                    if(direction == Direction.RIGHT){
+                        setAnimationType(RIGHT_JUMPING);
+                    }else if(direction == Direction.LEFT){
+                        setAnimationType(LEFT_JUMPING);
+                    }
+                    //We make the action, also we shrink other action buttons.
+                    hud.setScaleActions("XButton", 1.2);
+                }
                 break;
 
-            //If the user is pressing to A Button...
+            //If the user is pressing to A Button, Attack.
             case "AButton":
 
-                isAttacked = true;
+                isGliding = false;
 
                 if(direction == Direction.RIGHT){
                     setAnimationType(RIGHT_ATTACK);
@@ -302,14 +452,16 @@ public class Player{
                 hud.setScaleActions("AButton", 1.2);
                 break;
 
-            //If the user is pressing to Y Button...
+            //If the user is pressing to Y Button, Glide.
             case "YButton":
 
                 isGliding = true;
-                if(direction == Direction.RIGHT){
-                    setAnimationType(RIGHT_GLIDING);
-                }else if(direction == Direction.LEFT){
-                    setAnimationType(LEFT_GLIDING);
+                if(!onSurface){
+                    if(direction == Direction.RIGHT){
+                        setAnimationType(RIGHT_GLIDING);
+                    }else if(direction == Direction.LEFT){
+                        setAnimationType(LEFT_GLIDING);
+                    }
                 }
 
                 //We make the action, also we shrink other action buttons.
@@ -441,8 +593,6 @@ public class Player{
 
     public void setAnimationType(final int type){
         animation.setFrames(sprites.get(type));
-//        System.out.println("size of sprite array arrayList : " + sprites.size());
-
         if(type == RIGHT_ATTACK || type == LEFT_ATTACK){
             animation.setDelay(30);
         }else
@@ -462,14 +612,6 @@ public class Player{
 
     public Direction getLastDirection(){
         return direction;
-    }
-
-    public void setIsAttacked(Boolean b){
-        isAttacked = b;
-    }
-
-    public Rect getDestination(){
-        return destination;
     }
 
     public int getDestinationX(){
@@ -498,5 +640,97 @@ public class Player{
 
     public int getDestinationWidth(){
         return destinationWidth;
+    }
+
+    public void setClimbing(boolean climbing){
+        isClimbing = climbing;
+    }
+
+    public void setGliding(boolean gliding) {
+        isGliding = gliding;
+    }
+
+    public void checkButtonPressesForActions(){
+
+        if(touchControl.getActionButtonPressed(0)){
+
+            //action button id is 0
+
+            if(touchControl.isOtherTouchDpad(1)){
+
+                //dpad button id is 1
+
+                dpadTouchLocationX = touchControl.getTouch(1).x;
+                dpadTouchLocationY = touchControl.getTouch(1).y;
+
+                actionTouchLocationX = touchControl.getTouch(0).x;
+                actionTouchLocationY = touchControl.getTouch(0).y;
+
+                if(hud.pressedButtonActions(actionTouchLocationX, actionTouchLocationY).equals("YButton")){  //if the pressed button is glide button
+
+                    switch(hud.pressedButtonDPad(dpadTouchLocationX, dpadTouchLocationY)){
+
+                        case "LeftArrow":
+                            setAnimationType(LEFT_GLIDING);
+                            break;
+                        case "RightArrow":
+                            setAnimationType(RIGHT_GLIDING);
+                            break;
+                        case "UpArrow":
+                            break;
+                        case "DownArrow":
+                            break;
+                        default:
+                            break;
+
+                    }
+
+                 /*   if (hud.pressedButtonDPad(dpadTouchLocationX, dpadTouchLocationY) == "LeftArrow") {
+                        //do something
+                    } else if (hud.pressedButtonDPad(dpadTouchLocationX, dpadTouchLocationY) == "RightArrow") {
+                        //do something
+                    } else if (hud.pressedButtonDPad(dpadTouchLocationX, dpadTouchLocationY) == "UpArrow") {
+                        //do something
+                    } else if (hud.pressedButtonDPad(dpadTouchLocationX, dpadTouchLocationY) == "DownArrow") {
+                        //do something
+                    } */
+                }
+
+            }
+
+        }else if(touchControl.getDpadPressed(0)){
+
+            //dpad id is 0
+
+            if(touchControl.isOtherTouchAction(1)){
+
+                //dpad button id is 0
+
+                dpadTouchLocationX = touchControl.getTouch(0).x;
+                dpadTouchLocationY = touchControl.getTouch(0).y;
+
+                //action button id is 1
+
+                actionTouchLocationX = touchControl.getTouch(1).x;
+                actionTouchLocationY = touchControl.getTouch(1).y;
+
+                if(hud.pressedButtonActions(actionTouchLocationX, actionTouchLocationY).equals("YButton")){
+
+                    switch(hud.pressedButtonDPad(dpadTouchLocationX, dpadTouchLocationY)){
+
+                        case "LeftArrow":
+                            break;
+                        case "RightArrow":
+                            break;
+                        case "UpArrow":
+                            break;
+                        case "DownArrow":
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
     }
 }

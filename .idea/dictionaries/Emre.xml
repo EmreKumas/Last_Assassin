@@ -3,8 +3,11 @@
     <words>
       <w>collideable</w>
       <w>collideables</w>
+      <w>collidingnon</w>
       <w>continously</w>
+      <w>ngapp</w>
       <w>spritesheet</w>
+      <w>uncollideables</w>
     </words>
   </dictionary>
 </component>

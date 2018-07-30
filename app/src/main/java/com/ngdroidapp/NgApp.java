@@ -84,4 +84,8 @@ public class NgApp extends BaseApp {
     public void reloadTextures() {
         Log.i("NGAPP", "reloadTextures");
     }
+
+    public AppManager getAppManager(){
+        return appManager;
+    }
 }

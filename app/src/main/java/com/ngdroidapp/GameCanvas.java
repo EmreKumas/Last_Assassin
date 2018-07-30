@@ -10,8 +10,10 @@ import com.ngdroidapp.GameObjects.Bridge;
 import com.ngdroidapp.GameObjects.Direction;
 import com.ngdroidapp.GameObjects.Foreground;
 import com.ngdroidapp.GameObjects.Ground;
-import com.ngdroidapp.GameObjects.HUD;
+import com.ngdroidapp.OnScreenControls.HUD;
+import com.ngdroidapp.GameObjects.Obstacles;
 import com.ngdroidapp.GameObjects.Player;
+import com.ngdroidapp.OnScreenControls.TouchControl;
 
 import istanbul.gamelab.ngdroid.base.BaseCanvas;
 
@@ -22,6 +24,7 @@ public class GameCanvas extends BaseCanvas{
     private Ground ground;
     private Bridge bridge;
     private AirObjects airObjects;
+    private Obstacles obstacles;
     private Player player;
     private HUD hud;
 
@@ -41,18 +44,24 @@ public class GameCanvas extends BaseCanvas{
         ground = new Ground(background, getWidth(), getHeight());
         bridge = new Bridge(background, getWidth(), getHeight());
         airObjects = new AirObjects(background, getWidth(), getHeight());
-        player = new Player(root, background, ground, bridge, airObjects);
+        obstacles = new Obstacles(background, getWidth(), getHeight());
+        player = new Player(root, background, ground, bridge, airObjects, obstacles, hud, touchControl);
 
         //Setting the player's coordinates.
         player.setCoordinates((getWidth() / 4) - player.getDestinationWidth(), (int) (getHeight() / 1.7) - player.getDestinationHeight());
         ground.setPaint(Color.TRANSPARENT);
-        bridge.setPaint(Color.GREEN);
-        airObjects.setPaint(Color.BLUE);
+        bridge.setPaint(Color.TRANSPARENT);
+        airObjects.setPaint(Color.TRANSPARENT);
+        obstacles.setPaint(Color.TRANSPARENT);
+//        ground.setPaint(Color.RED);
+//        bridge.setPaint(Color.BLUE);
+//        airObjects.setPaint(Color.GREEN);
+//        obstacles.setPaint(Color.MAGENTA);
     }
 
     public void update(){
 
-        background.update(player, hud, touchControl.isDpadPressing());
+        background.update(player, hud, player.isMoving());
         player.update();
         foreground.update();
 
@@ -66,6 +75,7 @@ public class GameCanvas extends BaseCanvas{
         ground.draw(canvas);
         bridge.draw(canvas);
         airObjects.draw(canvas);
+        obstacles.draw(canvas);
         hud.draw(canvas);
 
         //FPS
@@ -96,6 +106,8 @@ public class GameCanvas extends BaseCanvas{
                 }
             }
         }
+
+        player.checkButtonPressesForActions();
     }
 
     public void touchMove(int x, int y, int id){
@@ -108,7 +120,6 @@ public class GameCanvas extends BaseCanvas{
                 if(!hud.checkCollisionDPad(hud.pressedButtonDPad(touchControl.getTouch(id).x, touchControl.getTouch(id).y), x, y)){
 
                     player.setMoving(false);
-                    background.setBackgroundNeedsToMove(false);
                     hud.scaleEverythingToSmallDPad(1.2);
                     touchControl.updateTouch(id, -100, -100);
 
@@ -133,11 +144,17 @@ public class GameCanvas extends BaseCanvas{
 
         if(id < 2 && touchControl.doesExist(id)){
 
+            //if the released button is an action button, disable gliding action.
+            if (touchControl.isActionButtonPressed()) {
+                if (touchControl.getActionButtonPressed(id)) {
+                    player.setGliding(false);
+                }
+            }
+
             //If the user releases the DPAD...
             if(touchControl.getDpadPressed(id)){
                 hud.revertScaleToOriginalDPad();
                 player.setMoving(false);
-                background.setBackgroundNeedsToMove(false);
             }
             //If the user releases the Action Buttons...
             else if(touchControl.getActionButtonPressed(id))
