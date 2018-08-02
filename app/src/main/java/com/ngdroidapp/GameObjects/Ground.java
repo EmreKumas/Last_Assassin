@@ -1,41 +1,15 @@
 package com.ngdroidapp.GameObjects;
 
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.RectF;
 import android.graphics.Region;
 
-public class Ground implements Collideables{
+import com.ngdroidapp.GameObjects.Abstracts_Interfaces.GroundForEverything;
 
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private int screenWidth;
-    private int screenHeight;
-    private double widthRatio;
-    private double heightRatio;
-
-    private Background background;
-
-    private Path ground;
-    private Region region;
-    private RectF collisionDetector;
-
-    private Paint paint;
+public class Ground extends GroundForEverything{
 
     public Ground(Background background, int screenWidth, int screenHeight){
 
-        this.background = background;
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
-
-        widthRatio = (double) screenWidth / 1280;
-        heightRatio = (double) screenHeight / 720;
-
-        ground = new Path();
-        region = new Region();
-        collisionDetector = new RectF();
-
-        paint = new Paint();
+        super(background, screenWidth, screenHeight);
     }
 
     public void draw(Canvas canvas){
@@ -72,14 +46,5 @@ public class Ground implements Collideables{
         //Setting the region for collision detection.
         region.setPath(ground, new Region((int) collisionDetector.left, (int) collisionDetector.top,
                 (int) collisionDetector.right, (int) collisionDetector.bottom));
-    }
-
-    public boolean isColliding(int x, int y){
-
-        return region.contains(x, y);
-    }
-
-    public void setPaint(int color){
-        paint.setColor(color);
     }
 }

@@ -6,6 +6,10 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
 
+import com.ngdroidapp.GameObjects.Abstracts_Interfaces.Collideables;
+import com.ngdroidapp.GameObjects.Abstracts_Interfaces.GroundForEverything;
+import com.ngdroidapp.GameObjects.Abstracts_Interfaces.Obstacles;
+import com.ngdroidapp.GameObjects.Abstracts_Interfaces.nonCollideables;
 import com.ngdroidapp.NgApp;
 import com.ngdroidapp.OnScreenControls.HUD;
 import com.ngdroidapp.OnScreenControls.TouchControl;
@@ -39,7 +43,7 @@ public class Player{
     private Background background;
 
     private List<Collideables> collideables;
-    private List<nonCollideables> nonCollideables;
+    private List<com.ngdroidapp.GameObjects.Abstracts_Interfaces.nonCollideables> nonCollideables;
 
     private String lastPressedArrow = "";
 
@@ -80,8 +84,7 @@ public class Player{
     private static final int LEFT_DEAD = 11;
     private static final int LEFT_JUMPING = 12;
 
-
-    public Player(NgApp root, Background background, Ground ground, Bridge bridge, AirObjects airObjects, Obstacles obstacles, HUD hud, TouchControl touchControl){
+    public Player(NgApp root, Background background, HUD hud, TouchControl touchControl, List<GroundForEverything> groundForEverything, List<Obstacles> obstacles){
 
         source = new Rect();
         destination = new Rect();
@@ -93,10 +96,8 @@ public class Player{
         collideables = new ArrayList<>();
         nonCollideables = new ArrayList<>();
 
-        collideables.add(ground);
-        collideables.add(bridge);
-        collideables.add(airObjects);
-        nonCollideables.add(obstacles);
+        collideables.addAll(groundForEverything);
+        nonCollideables.addAll(obstacles);
 
         screenWidth = root.appManager.getScreenWidth();
         screenHeight = root.appManager.getScreenHeight();
@@ -119,13 +120,14 @@ public class Player{
 
     public void update(){
 
-        onSurface = false;
+        if(isMoving)
+            onSurface = false;
 
         //firsRun is boolean for skipping collision control at first update method in the game.
         //If it checks collisions before first draw, program gives NullPointerException.
         if(!firstRun){
             //GRAVITY FALL
-            if(!isCollidingCollideable() && !stopPoint && !isClimbing){
+            if(!isCollidingCollideable() && !onSurface && !stopPoint && !isClimbing){
 
                 if(isGliding)
                     jumpCycle = 1;
@@ -144,22 +146,31 @@ public class Player{
 
             //NON-COLLIDEABLES
             if(isCollidingnonCollideable()){
-                //Convert string to an appropriate format.
-                collidedDirection = direction.name();
-                collidedDirection = collidedDirection.substring(0, 1) + collidedDirection.substring(1, collidedDirection.length()).toLowerCase(Locale.ENGLISH);
 
-                isMoving = !lastPressedArrow.contains(collidedDirection);
-                stopPoint = true;
-            }else{
-                stopPoint = false;
-                if(!lastPressedArrow.equals(direction.name().substring(0, 1) + direction.name().substring(1, direction.name().length()).toLowerCase(Locale.ENGLISH) + "Arrow")){
-                    lastPressedArrow = direction.name().substring(0, 1) + direction.name().substring(1, direction.name().length()).toLowerCase(Locale.ENGLISH) + "Arrow";
+                if(collidedDirection.isEmpty() || (!stopPoint && lastPressedArrow.equals(collidedDirection.concat("Arrow")))){
+                    //Convert string to an appropriate format.
+                    collidedDirection = direction.name();
+                    collidedDirection = collidedDirection.substring(0, 1) + collidedDirection.substring(1, collidedDirection.length()).toLowerCase(Locale.ENGLISH);
 
-                    if(lastPressedArrow.equals("RightArrow"))
-                        moveAmountX = Math.abs(moveAmountX);
-                    else
-                        moveAmountX = Math.abs(moveAmountX) * -1;
+                    isMoving = !lastPressedArrow.contains(collidedDirection.concat("Arrow"));
+
+                    stopPoint = true;
                 }
+
+            }else
+                stopPoint = false;
+
+            //TO GET RID OF OBSTACLES
+            if(!lastPressedArrow.equals(direction.name().substring(0, 1) + direction.name().substring(1, direction.name().length()).toLowerCase(Locale.ENGLISH) + "Arrow")){
+                lastPressedArrow = direction.name().substring(0, 1) + direction.name().substring(1, direction.name().length()).toLowerCase(Locale.ENGLISH) + "Arrow";
+
+                if(lastPressedArrow.equals("RightArrow"))
+                    moveAmountX = Math.abs(moveAmountX);
+                else
+                    moveAmountX = Math.abs(moveAmountX) * -1;
+
+                stopPoint = false;
+                isMoving = true;
             }
         }else
             firstRun = false;
@@ -219,10 +230,21 @@ public class Player{
         }
 
         //To stabilize the player-screen ratio in which the player always needs to be closed to the mid of the screen.
-        while(destinationY > screenHeight / 2 && background.getSourceY() + background.getSourceHeight() < 2160){
+        while(destinationY > screenHeight / 1.8 && background.backgroundMovingVertically()){
 
             destinationY--;
             background.addSourceY(1);
+        }
+
+        while(isCollidingCollideable()){
+
+            destinationY--;
+        }
+
+        while(destinationY <= screenHeight / 2.2 && background.getSourceY() > 0){
+
+            destinationY++;
+            background.addSourceY(-1);
         }
 
         destination.set(destinationX, destinationY, destinationX + destinationWidth, destinationY + destinationHeight);
@@ -257,11 +279,12 @@ public class Player{
      */
     private void Jump(){
 
-        isLanded = false;  //checks whether the player landed on surface or not.
-        isMoving = false;
+//        isLanded = false;  //checks whether the player landed on surface or not.
 
-        destinationY += velY;  //first part of the jump movement towards Y axis
-        velY += gravity;
+        if(!isLanded){
+            destinationY += velY;  //first part of the jump movement towards Y axis
+            velY += gravity;
+        }
 
         /*if (!background.backgroundMovingHorizontally()) {
             if (direction == Direction.LEFT) {
@@ -275,7 +298,7 @@ public class Player{
         if(velY == 0){
             enableGravity = true;
             if(!isGliding){
-                gravityFall(10);
+                gravityFall(8);
             }
             onSurface = false;
         }
@@ -288,6 +311,7 @@ public class Player{
             enableGravity = false; //checks the collision with ground before and after jump.
             jump = false;
         }
+
         destination.set(destinationX, destinationY, destinationX + destinationWidth, destinationY + destinationHeight);
     }
 
@@ -305,10 +329,10 @@ public class Player{
     /**
      * This method moves the player on the screen.
      */
-    private void movePlayer(int x, int y, String pressedArrow){
+    private void movePlayer(Integer x, Integer y, String pressedArrow){
 
         //If the background IS NOT moving, we move the player on the screen.
-        if(!background.backgroundMovingHorizontally()){
+        if(!background.backgroundMovingHorizontally() && x != null){
 
             destinationX += x;
 
@@ -319,15 +343,15 @@ public class Player{
                 destinationX -= x;
         }
 
-        if(!background.backgroundMovingVertically()){
+        if(!background.backgroundMovingVertically() && y != null)
             destinationY += y;
-        }
 
-        //Variables for continuous move.
-        moveAmountX = x;
-        moveAmountY = y;
+        if(x != null)
+            moveAmountX = x;
+        if(y != null)
+            moveAmountY = y;
+
         lastPressedArrow = pressedArrow;
-
         destination.set(destinationX, destinationY, destinationX + destinationWidth, destinationY + destinationHeight);
     }
 
@@ -348,7 +372,7 @@ public class Player{
                 direction = Direction.LEFT;
                 setAnimationType(LEFT_RUNNING);
                 if(!isCollidingnonCollideable()){
-                    movePlayer((int) (-1 * speed * speedRatio), 0, "LeftArrow");
+                    movePlayer((int) (-1 * speed * speedRatio), null, "LeftArrow");
                 }else
                     isMoving = false;
 
@@ -370,7 +394,7 @@ public class Player{
                 isGliding = false;
                 isClimbing = true;
                 setAnimationType(CLIMBING);
-                movePlayer(0, (int) (-1 * speed * speedRatio), "UpArrow");
+                movePlayer(null, (int) (-1 * speed * speedRatio), "UpArrow");
 
                 //We move the player, also we shrink other dpad buttons.
                 hud.setScaleDPad("UpArrow", 1.2);
@@ -384,7 +408,7 @@ public class Player{
                 setAnimationType(RIGHT_RUNNING);
 
                 if(!isCollidingnonCollideable())
-                    movePlayer((int) (speed * speedRatio), 0, "RightArrow");
+                    movePlayer((int) (speed * speedRatio), null, "RightArrow");
                 else
                     isMoving = false;
 
@@ -404,7 +428,7 @@ public class Player{
                 isPressedLeftOrRight = false;
                 isGliding = false;
                 setAnimationType(CLIMBING);
-                movePlayer(0, (int) (speed * speedRatio), "DownArrow");
+                movePlayer(null, (int) (speed * speedRatio), "DownArrow");
 
                 //We move the player, also we shrink other dpad buttons.
                 hud.setScaleDPad("DownArrow", 1.2);
@@ -427,6 +451,7 @@ public class Player{
 
                     velY = -60;
                     jump = true;
+                    isLanded = false;
                     if(direction == Direction.RIGHT){
                         setAnimationType(RIGHT_JUMPING);
                     }else if(direction == Direction.LEFT){
@@ -539,7 +564,7 @@ public class Player{
             //LEFT_IDLE frames
             Bitmap[] left_idle = new Bitmap[10];
             for(int j = 0; j < 10; j++){
-                left_idle[j] = flipBitmap(Bitmap.createBitmap(spriteSheet, j * 140, 0, 140, 135));
+                left_idle[j] = flipBitmap(Bitmap.createBitmap(spriteSheet, j * 140, 0, 140, 120));
             }
             sprites.add(left_idle);
 
@@ -646,7 +671,7 @@ public class Player{
         isClimbing = climbing;
     }
 
-    public void setGliding(boolean gliding) {
+    public void setGliding(boolean gliding){
         isGliding = gliding;
     }
 

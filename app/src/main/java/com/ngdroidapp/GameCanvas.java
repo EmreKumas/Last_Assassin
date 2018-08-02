@@ -4,16 +4,21 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
 
+import com.ngdroidapp.GameObjects.Abstracts_Interfaces.GroundForEverything;
+import com.ngdroidapp.GameObjects.Abstracts_Interfaces.Obstacles;
 import com.ngdroidapp.GameObjects.AirObjects;
 import com.ngdroidapp.GameObjects.Background;
 import com.ngdroidapp.GameObjects.Bridge;
 import com.ngdroidapp.GameObjects.Direction;
 import com.ngdroidapp.GameObjects.Foreground;
 import com.ngdroidapp.GameObjects.Ground;
-import com.ngdroidapp.OnScreenControls.HUD;
-import com.ngdroidapp.GameObjects.Obstacles;
+import com.ngdroidapp.GameObjects.Obstacle_AfterBridge;
+import com.ngdroidapp.GameObjects.Obstacle_RightMost;
 import com.ngdroidapp.GameObjects.Player;
+import com.ngdroidapp.OnScreenControls.HUD;
 import com.ngdroidapp.OnScreenControls.TouchControl;
+
+import java.util.Arrays;
 
 import istanbul.gamelab.ngdroid.base.BaseCanvas;
 
@@ -21,10 +26,14 @@ public class GameCanvas extends BaseCanvas{
 
     private Background background;
     private Foreground foreground;
-    private Ground ground;
-    private Bridge bridge;
-    private AirObjects airObjects;
-    private Obstacles obstacles;
+
+    private GroundForEverything ground;
+    private GroundForEverything bridge;
+    private GroundForEverything airObjects;
+
+    private Obstacles obstacle_afterBridge;
+    private Obstacles obstacle_rightMost;
+
     private Player player;
     private HUD hud;
 
@@ -41,22 +50,32 @@ public class GameCanvas extends BaseCanvas{
         background = new Background("Level_1_Background.jpg", root, touchControl);
         foreground = new Foreground("Level_1_Foreground.png", root, background);
         hud = new HUD(root);
+
         ground = new Ground(background, getWidth(), getHeight());
         bridge = new Bridge(background, getWidth(), getHeight());
         airObjects = new AirObjects(background, getWidth(), getHeight());
-        obstacles = new Obstacles(background, getWidth(), getHeight());
-        player = new Player(root, background, ground, bridge, airObjects, obstacles, hud, touchControl);
+
+        obstacle_afterBridge = new Obstacle_AfterBridge(background, getWidth(), getHeight());
+        obstacle_rightMost = new Obstacle_RightMost(background, getWidth(), getHeight());
+
+        player = new Player(root, background, hud, touchControl,
+                Arrays.asList(ground, bridge, airObjects),
+                Arrays.asList(obstacle_afterBridge, obstacle_rightMost));
 
         //Setting the player's coordinates.
         player.setCoordinates((getWidth() / 4) - player.getDestinationWidth(), (int) (getHeight() / 1.7) - player.getDestinationHeight());
-        ground.setPaint(Color.TRANSPARENT);
-        bridge.setPaint(Color.TRANSPARENT);
-        airObjects.setPaint(Color.TRANSPARENT);
-        obstacles.setPaint(Color.TRANSPARENT);
-//        ground.setPaint(Color.RED);
-//        bridge.setPaint(Color.BLUE);
-//        airObjects.setPaint(Color.GREEN);
-//        obstacles.setPaint(Color.MAGENTA);
+
+//        ground.setPaint(Color.TRANSPARENT);
+//        bridge.setPaint(Color.TRANSPARENT);
+//        airObjects.setPaint(Color.TRANSPARENT);
+//        obstacle_afterBridge.setPaint(Color.TRANSPARENT);
+//        obstacle_rightMost.setPaint(Color.TRANSPARENT);
+
+        ground.setPaint(Color.RED);
+        bridge.setPaint(Color.BLUE);
+        airObjects.setPaint(Color.GREEN);
+        obstacle_afterBridge.setPaint(Color.MAGENTA);
+        obstacle_rightMost.setPaint(Color.LTGRAY);
     }
 
     public void update(){
@@ -75,7 +94,8 @@ public class GameCanvas extends BaseCanvas{
         ground.draw(canvas);
         bridge.draw(canvas);
         airObjects.draw(canvas);
-        obstacles.draw(canvas);
+        obstacle_afterBridge.draw(canvas);
+        obstacle_rightMost.draw(canvas);
         hud.draw(canvas);
 
         //FPS

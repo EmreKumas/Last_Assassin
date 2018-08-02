@@ -1,36 +1,15 @@
 package com.ngdroidapp.GameObjects;
 
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.RectF;
 import android.graphics.Region;
 
-public class AirObjects implements Collideables{
+import com.ngdroidapp.GameObjects.Abstracts_Interfaces.GroundForEverything;
 
-    private double widthRatio;
-    private double heightRatio;
-
-    private Background background;
-
-    private Path ground;
-    private Region region;
-    private RectF collisionDetector;
-
-    private Paint paint;
+public class AirObjects extends GroundForEverything{
 
     public AirObjects(Background background, int screenWidth, int screenHeight){
 
-        this.background = background;
-
-        widthRatio = (double) screenWidth / 1280;
-        heightRatio = (double) screenHeight / 720;
-
-        ground = new Path();
-        region = new Region();
-        collisionDetector = new RectF();
-
-        paint = new Paint();
+        super(background, screenWidth, screenHeight);
     }
 
     public void draw(Canvas canvas){
@@ -39,8 +18,8 @@ public class AirObjects implements Collideables{
 
         ground.moveTo((int) (2375  * widthRatio), (int) (130 * heightRatio));
         ground.lineTo((int) (2375 * widthRatio), (int) (70 * heightRatio));
-        ground.lineTo((int) (3100 * widthRatio), (int) (70 * heightRatio));
-        ground.lineTo((int) (3100 * widthRatio), (int) (210 * heightRatio));
+        ground.lineTo((int) (3150 * widthRatio), (int) (70 * heightRatio));
+        ground.lineTo((int) (3150 * widthRatio), (int) (210 * heightRatio));
         ground.lineTo((int) (2500 * widthRatio), (int) (210 * heightRatio));
         ground.lineTo((int) (2500 * widthRatio), (int) (130 * heightRatio));
         ground.lineTo((int) (2375  * widthRatio), (int) (130 * heightRatio));
@@ -59,15 +38,5 @@ public class AirObjects implements Collideables{
         region.setPath(ground, new Region((int) collisionDetector.left, (int) collisionDetector.top,
                 (int) collisionDetector.right, (int) collisionDetector.bottom));
 
-    }
-
-    @Override
-    public boolean isColliding(int x, int y){
-
-        return region.contains(x, y);
-    }
-
-    public void setPaint(int color){
-        paint.setColor(color);
     }
 }
