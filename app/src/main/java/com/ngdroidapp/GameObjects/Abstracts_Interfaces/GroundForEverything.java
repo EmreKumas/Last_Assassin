@@ -45,6 +45,11 @@ public abstract class GroundForEverything implements Collideables{
         return region.contains(x, y);
     }
 
+    public void deleteEverything(){
+
+        ground.reset();
+    }
+
     public void setPaint(int color){
         paint.setColor(color);
     }

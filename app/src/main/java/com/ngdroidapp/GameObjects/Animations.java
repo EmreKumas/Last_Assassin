@@ -41,11 +41,16 @@ public class Animations{
         if(currentFrame == frames.length){
             currentFrame = 0;
             playedOnce = true;
-        }
+        }else
+            playedOnce = false;
     }
 
     public void setCurrentFrame(int currentFrame){
         this.currentFrame = currentFrame;
+    }
+
+    public long getDelay(){
+        return delay;
     }
 
     public void setDelay(long delay){
@@ -59,6 +64,8 @@ public class Animations{
     public int getCurrentFrame(){
         return currentFrame;
     }
+
+    public int getFrameCount(){ return frames.length;}
 
     public boolean isPlayedOnce(){
         return playedOnce;

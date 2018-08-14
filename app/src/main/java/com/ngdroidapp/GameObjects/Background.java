@@ -24,6 +24,7 @@ public class Background{
     @SuppressWarnings("FieldCanBeLocal")
     private int playerX, playerY, touchLocationX, touchLocationY;
     private int screenWidth, screenHeight;
+    private int moveSpeed;
 
     private TouchControl touchControl;
 
@@ -60,6 +61,11 @@ public class Background{
         playerX = player.getDestinationX() + player.getDestinationWidth();
         playerY = player.getDestinationY() + player.getDestinationHeight();
 
+        if(!player.isGliding())
+            moveSpeed = player.getSpeed();
+        else
+            moveSpeed = player.getGlidingSpeed();
+
         if(isMoving && touchControl.isDpadPressing()){
 
             //If the user is pressing dpad, we need to check if the background needs to move or not.
@@ -78,11 +84,11 @@ public class Background{
                 //If the user touches to Right Arrow, if the players position is greater than the half of the screens width and if the background is not fully loaded on horizontally...
                 case "RightArrow":
 
-                    if((playerX + player.getDestinationWidth()) > screenWidth / 2 && sourceX + sourceWidth < 3840){
+                    if((playerX + player.getDestinationWidth()) > screenWidth / 2.2 && sourceX + sourceWidth < 3840){
 
                         //When we move the background, if it won't be passing the limits of the source image, we will slide it.
-                        if(sourceX + player.getSpeed() < 3840 - sourceWidth)
-                            sourceX += player.getSpeed();
+                        if(sourceX + moveSpeed < 3840 - sourceWidth)
+                            sourceX += moveSpeed;
                             //Else, we will make it static. Otherwise, the right of the screen will be black because the source image is fully loaded.
                         else
                             sourceX = 3840 - sourceWidth;
@@ -92,8 +98,8 @@ public class Background{
 
                     if(playerY < screenHeight / 2 && sourceY > 0){
 
-                        if(sourceY - (player.getSpeed() / 2) > 0)
-                            sourceY -= player.getSpeed() / 2;
+                        if(sourceY - (moveSpeed / 2) > 0)
+                            sourceY -= moveSpeed / 2;
                         else
                             sourceY = 0;
 
@@ -105,11 +111,11 @@ public class Background{
                 //The same goes here. If the user touches to Left Arrow, if the players position is less than the half of the screens width and if the backgrounds beginning is not loaded yet...
                 case "LeftArrow":
 
-                    if(playerX < screenWidth / 2 && sourceX > 0){
+                    if(playerX < screenWidth / 1.8 && sourceX > 0){
 
                         //When we move the background, if the image doesn't pass the limits on the left side, we will slide it.
-                        if(sourceX - player.getSpeed() > 0)
-                            sourceX -= player.getSpeed();
+                        if(sourceX - moveSpeed > 0)
+                            sourceX -= moveSpeed;
                         else
                             sourceX = 0;
 
@@ -118,8 +124,8 @@ public class Background{
 
                     if(playerY < screenHeight / 2 && sourceY > 0){
 
-                        if(sourceY - (player.getSpeed() / 2) > 0)
-                            sourceY -= player.getSpeed() / 2;
+                        if(sourceY - (moveSpeed / 2) > 0)
+                            sourceY -= moveSpeed / 2;
                         else
                             sourceY = 0;
 
@@ -130,8 +136,8 @@ public class Background{
                 case "UpArrow":
 
                     if(playerY - player.getDestinationHeight() <= screenHeight / 2 && sourceY > 0){
-                        if(sourceY - player.getSpeed() > 0)
-                            sourceY -= player.getSpeed();
+                        if(sourceY - moveSpeed > 0)
+                            sourceY -= moveSpeed;
                         else
                             sourceY = 0;
 
@@ -141,10 +147,10 @@ public class Background{
                     break;
                 case "DownArrow":
 
-                    if(playerY >= screenHeight / 2 && sourceY + sourceHeight < 2160){
+                    if(playerY - player.getDestinationHeight() >= screenHeight / 2 && sourceY + sourceHeight < 2160){
 
-                        if(sourceY + player.getSpeed() < 2160 - sourceHeight)
-                            sourceY += player.getSpeed();
+                        if(sourceY + moveSpeed < 2160 - sourceHeight)
+                            sourceY += moveSpeed;
                         else
                             sourceY = 2160 - sourceHeight;
 
@@ -167,6 +173,11 @@ public class Background{
     public boolean backgroundMovingVertically(){
 
         return sourceY != 0 && sourceY + sourceHeight < 2160;
+    }
+
+    public boolean backgroundStopPoint(){
+
+        return sourceY + sourceHeight < 2160;
     }
 
     public void draw(Canvas canvas){

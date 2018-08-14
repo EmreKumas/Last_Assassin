@@ -16,11 +16,11 @@ public class Obstacle_AfterBridge extends Obstacles{
 
         ground.reset();
 
-        ground.moveTo((int) (2375  * widthRatio), (int) (250 * heightRatio));
-        ground.lineTo((int) (2375 * widthRatio), (int) (130 * heightRatio));
+        ground.moveTo((int) (2370  * widthRatio), (int) (250 * heightRatio));
+        ground.lineTo((int) (2370 * widthRatio), (int) (130 * heightRatio));
         ground.lineTo((int) (2500 * widthRatio), (int) (130 * heightRatio));
         ground.lineTo((int) (2500 * widthRatio), (int) (250 * heightRatio));
-        ground.lineTo((int) (2375 * widthRatio), (int) (250 * heightRatio));
+        ground.lineTo((int) (2370 * widthRatio), (int) (250 * heightRatio));
         ground.close();
 
         //Offsetting the path.

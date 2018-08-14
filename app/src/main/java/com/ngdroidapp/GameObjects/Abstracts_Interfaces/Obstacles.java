@@ -42,6 +42,12 @@ abstract public class Obstacles implements nonCollideables{
         return region.contains(x, y);
     }
 
+    public void deleteEverything(){
+
+        ground.reset();
+        region.setEmpty();
+    }
+
     public void setPaint(int color){
         paint.setColor(color);
     }

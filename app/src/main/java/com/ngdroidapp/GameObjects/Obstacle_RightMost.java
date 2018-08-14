@@ -16,11 +16,11 @@ public class Obstacle_RightMost extends Obstacles{
 
         ground.reset();
 
-        ground.moveTo((int) (3120  * widthRatio), (int) (100 * heightRatio));
-        ground.lineTo((int) (3120 * widthRatio), (int) (-250 * heightRatio));
-        ground.lineTo((int) (3200 * widthRatio), (int) (-250 * heightRatio));
+        ground.moveTo((int) (3110  * widthRatio), (int) (100 * heightRatio));
+        ground.lineTo((int) (3110 * widthRatio), (int) (-900 * heightRatio));
+        ground.lineTo((int) (3200 * widthRatio), (int) (-900 * heightRatio));
         ground.lineTo((int) (3200 * widthRatio), (int) (100 * heightRatio));
-        ground.lineTo((int) (3120  * widthRatio), (int) (100 * heightRatio));
+        ground.lineTo((int) (3110  * widthRatio), (int) (100 * heightRatio));
         ground.close();
 
         //Offsetting the path.
