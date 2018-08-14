@@ -7,19 +7,21 @@ import android.graphics.Point;
 import com.ngdroidapp.GameObjects.Abstracts_Interfaces.GroundForEverything;
 import com.ngdroidapp.GameObjects.Abstracts_Interfaces.Obstacles;
 import com.ngdroidapp.GameObjects.Enemy;
-import com.ngdroidapp.GameObjects.GroundAboveLadder;
-import com.ngdroidapp.GameObjects.GroundAfterBridge;
+import com.ngdroidapp.GameObjects.Grounds_Obstacles.GroundAboveLadder;
+import com.ngdroidapp.GameObjects.Grounds_Obstacles.GroundAfterBridge;
 import com.ngdroidapp.GameObjects.Background;
-import com.ngdroidapp.GameObjects.Bridge;
+import com.ngdroidapp.GameObjects.Grounds_Obstacles.Bridge;
 import com.ngdroidapp.GameObjects.Direction;
 import com.ngdroidapp.GameObjects.Foreground;
-import com.ngdroidapp.GameObjects.Ground;
-import com.ngdroidapp.GameObjects.GroundLeftAboveLadder;
+import com.ngdroidapp.GameObjects.Grounds_Obstacles.Ground;
+import com.ngdroidapp.GameObjects.Grounds_Obstacles.GroundLeftAboveLadder;
+import com.ngdroidapp.GameObjects.Grounds_Obstacles.GroundLeftLower;
+import com.ngdroidapp.GameObjects.Grounds_Obstacles.GroundLeftUpper;
 import com.ngdroidapp.GameObjects.Ladder;
-import com.ngdroidapp.GameObjects.Obstacle_AfterBridge;
-import com.ngdroidapp.GameObjects.Obstacle_RightMost;
+import com.ngdroidapp.GameObjects.Grounds_Obstacles.Obstacle_AfterBridge;
+import com.ngdroidapp.GameObjects.Grounds_Obstacles.Obstacle_RightMost;
 import com.ngdroidapp.GameObjects.Player;
-import com.ngdroidapp.GameObjects.ThingToHoldPlayer;
+import com.ngdroidapp.GameObjects.Grounds_Obstacles.ThingToHoldPlayer;
 import com.ngdroidapp.OnScreenControls.HUD;
 import com.ngdroidapp.OnScreenControls.TouchControl;
 
@@ -37,6 +39,8 @@ public class GameCanvas extends BaseCanvas{
     private GroundForEverything groundAfterBridge;
     private GroundForEverything groundAboveLadder;
     private GroundForEverything groundLeftAboveLadder;
+    private GroundForEverything groundLeftUpper;
+    private GroundForEverything groundLeftLower;
 
     private Obstacles obstacle_afterBridge;
     private Obstacles obstacle_rightMost;
@@ -51,6 +55,7 @@ public class GameCanvas extends BaseCanvas{
 
     private TouchControl touchControl;
 
+    @SuppressWarnings("FieldCanBeLocal")
     private double widthRatio, heightRatio;
 
     @SuppressWarnings("WeakerAccess")
@@ -74,6 +79,8 @@ public class GameCanvas extends BaseCanvas{
         groundAfterBridge = new GroundAfterBridge(background, getWidth(), getHeight());
         groundAboveLadder = new GroundAboveLadder(background, getWidth(), getHeight());
         groundLeftAboveLadder = new GroundLeftAboveLadder(background, getWidth(), getHeight());
+        groundLeftUpper = new GroundLeftUpper(background, getWidth(), getHeight());
+        groundLeftLower = new GroundLeftLower(background, getWidth(), getHeight());
         ladder = new Ladder(background, getWidth(), getHeight());
         thingToHoldPlayer = new ThingToHoldPlayer(background, getWidth(), getHeight());
 
@@ -81,7 +88,7 @@ public class GameCanvas extends BaseCanvas{
         obstacle_rightMost = new Obstacle_RightMost(background, getWidth(), getHeight());
 
         player = new Player(root, background, hud, touchControl,
-                Arrays.asList(ground, bridge, thingToHoldPlayer, groundAfterBridge, groundAboveLadder, groundLeftAboveLadder),
+                Arrays.asList(ground, bridge, thingToHoldPlayer, groundAfterBridge, groundAboveLadder, groundLeftAboveLadder, groundLeftUpper, groundLeftLower),
                 Arrays.asList(obstacle_afterBridge, obstacle_rightMost),
                 ladder);
         enemy1 = new Enemy(root, background, player, "OrangeShirtBoy", (int) (2775 * widthRatio),
@@ -96,6 +103,8 @@ public class GameCanvas extends BaseCanvas{
         groundAfterBridge.setPaint(Color.TRANSPARENT);
         groundAboveLadder.setPaint(Color.TRANSPARENT);
         groundLeftAboveLadder.setPaint(Color.TRANSPARENT);
+        groundLeftUpper.setPaint(Color.TRANSPARENT);
+        groundLeftLower.setPaint(Color.TRANSPARENT);
         ladder.setPaint(Color.TRANSPARENT);
         obstacle_afterBridge.setPaint(Color.TRANSPARENT);
         obstacle_rightMost.setPaint(Color.TRANSPARENT);
@@ -106,6 +115,8 @@ public class GameCanvas extends BaseCanvas{
 //        groundAfterBridge.setPaint(Color.GREEN);
 //        groundAboveLadder.setPaint(Color.RED);
 //        groundLeftAboveLadder.setPaint(Color.BLUE);
+//        groundLeftUpper.setPaint(Color.MAGENTA);
+//        groundLeftLower.setPaint(Color.GREEN);
 //        ladder.setPaint(Color.CYAN);
 //        obstacle_afterBridge.setPaint(Color.MAGENTA);
 //        obstacle_rightMost.setPaint(Color.LTGRAY);
@@ -117,7 +128,6 @@ public class GameCanvas extends BaseCanvas{
         player.update();
         enemy1.update();
         foreground.update();
-
     }
 
     public void draw(Canvas canvas){
@@ -131,6 +141,8 @@ public class GameCanvas extends BaseCanvas{
         groundAfterBridge.draw(canvas);
         groundAboveLadder.draw(canvas);
         groundLeftAboveLadder.draw(canvas);
+        groundLeftUpper.draw(canvas);
+        groundLeftLower.draw(canvas);
         thingToHoldPlayer.draw(canvas);
         ladder.draw(canvas);
         obstacle_afterBridge.draw(canvas);

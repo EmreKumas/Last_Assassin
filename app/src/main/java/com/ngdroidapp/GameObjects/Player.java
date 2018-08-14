@@ -11,6 +11,8 @@ import com.ngdroidapp.GameObjects.Abstracts_Interfaces.Collideables;
 import com.ngdroidapp.GameObjects.Abstracts_Interfaces.GroundForEverything;
 import com.ngdroidapp.GameObjects.Abstracts_Interfaces.Obstacles;
 import com.ngdroidapp.GameObjects.Abstracts_Interfaces.nonCollideables;
+import com.ngdroidapp.GameObjects.Grounds_Obstacles.GroundAfterBridge;
+import com.ngdroidapp.GameObjects.Grounds_Obstacles.ThingToHoldPlayer;
 import com.ngdroidapp.NgApp;
 import com.ngdroidapp.OnScreenControls.HUD;
 import com.ngdroidapp.OnScreenControls.TouchControl;
@@ -337,7 +339,7 @@ public class Player{
 
             }else if(collideable instanceof AirThings){
 
-                if(lastPressedArrow.equals("DownArrow") && ladder.isColliding(destinationX + destinationWidth, destinationY + destinationHeight) && collideables.get(4).isColliding(destinationX + destinationWidth, destinationY + destinationHeight))
+                if(lastPressedArrow.equals("DownArrow") && isCollidingLadder())
                     return false;
                 else if(lastPressedArrow.equals("UpArrow") && collideable.isColliding(destinationX + destinationWidth, destinationY + destinationHeight))
                     return true;

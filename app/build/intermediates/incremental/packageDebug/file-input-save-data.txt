@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Tue Aug 14 11:29:07 EET 2018
+#Tue Aug 14 15:22:42 EET 2018
 210.set=ANDROID_RESOURCE
 14.set=ANDROID_RESOURCE
 180.file=C\:\\Users\\Emre\\Desktop\\Dosyalar\\Projects\\Last_Assassin\\app\\build\\intermediates\\res\\resources-debug.ap_\\res\\drawable\\abc_list_selector_background_transition_holo_light.xml
