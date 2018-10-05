@@ -1,34 +1,10 @@
-# NgdroidApp
-We teach game programming here in Gamelab Istanbul (http://gamelab.istanbul) and in 2 universities. This simple Java framework is created to use in the classes. Thus, instead of spending time with configuring Android, the students can start to write their game codes asap.
+# Last Assassin
 
-The framework is an Android Studio project. You can fork it, and then, you can clone your fork into your computer via the Android Studio.
-
-The framework has got;
-
-- GameActivity (the entry point),
-- AppManager (SurfaceView),
-- Main loop (main thread),
-- NgApp (the root class),
-- CanvasManager and
-- GameCanvas.
-
-All you have to do is opening GameCanvas and start coding your game.
-
-The framework is designed in the MVC pattern. If you need to create new classes for your menus and other views, you can simply extend BaseCanvas and set this new child canvas as the current canvas.
-
-When you want to generate your own APK;
-
-- Change the app name in the res/values/strings.xml,
-- Change package com.mycompany.myngdroidapp to your own package name,
-- Put your game icon into res/mipmap folders,
-- Modify the app/build.graddle and
-- Modify AndroidManifest.xml.
-
-There are still a lot of rooms to develop. Contributions are really appreciated.
-
-This framework is licenced with MIT licence.
-
-Installation Notice
---------
-
-The NgdroidApp is designed as an Android Studio project. Thus you can clone and open it via your Android Studio. Some users reported that Android Studio could not sometimes open the NgdroidApp project. In this case, close the project via "File->Close Project", select "Open an existing Android Studio project", then find and open the project via project explorer window.
+  In a *post-apocalyptic* world, the world is not a good place for weaks to live. A disease has spread all across the world after the Nuclear War which turns people into mindless creatures called ***Zombies***. Only rich people can have a place in this world, and of course **warriors**. Our character is an *assassin* living in this world and do jobs for the living. So you have to complete the tasks you're given or you will *die*, too.
+  
+  This is the *story* of our game. We started to develop this game in our Computer Engineering intern. We only used a framework called *NgdroidApp*, but for the most of the features we wrote them from scratch. It tooks us 1 month to bring the game to this form. Even though we couldn't finish the game, it was a good experience. We wrote it in *Android Studio* and used *Java* as the programming language. Most of the assets were available on the internet for free use. Remaining assets (background for ex.) were done by us. We wrote about *3000 lines of code*. And as I said, even though we couldn't finish it, it was a good experience.
+  
+  You can find the all the source code in here, also if you want to download the .apk file you can visit [my website](https://www.emrekumas.com).
+  
+***Developers:*** Hande Oktay (https://github.com/handeoktay)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Emre Kumaş
